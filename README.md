@@ -2,6 +2,12 @@
 Cyber Defense Techniques Red Team Distraction Tool 
 Written by Oscar Dorantes
 
+# Contains:
+- playinface.yml
+- playinfaces.yml
+- spam_inventory.ini
+- Spaminations Folder
+
 # Questions:
 - What is the goal of this tool? What purpose does it bring to the competitions?
 
