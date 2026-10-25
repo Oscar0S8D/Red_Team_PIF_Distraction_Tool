@@ -1,0 +1,53 @@
+---
+-   name: Play in Blue's Face, Part B
+    hosts: all
+    become: yes
+    
+    vars:
+    # Blue Team Subnet (Change)
+      subnet_prefix: "10.10.10"
+    # Folder of Spam Animation Files on Control Machine
+      source_spam_folder: "~/spaminations/"
+    # Hide Copy of Spam Folder in Downloads or other location in Target Machine
+      remote_spam_folder: "~/Downloads/ChumStuff/"
+
+    vars_prompt:
+    # Script asks Red User for what animation file to display/send
+      - name: selected_file
+        prompt: "Which Animation to Send?"
+        private: false
+        default: "stuff.txt"
+  
+    tasks:
+
+    - name: Ensure Files Are Copied
+    # In case of deletion, Copy all Spam Animation Files on target machine
+      ansible.builtin.copy:
+          src: "{{ source_spam_folder }}"
+          dest: "{{ remote_spam_folder }}"
+  
+    
+    - name: Search for Blue Team SSH Terminal Lines
+    # Searches "who" output for terminal lines belonging to logged in Blue SSH Users
+      ansible.builtin.shell: |
+        who | awk -v net="{{ subnet_prefix }}" '$0 ~ net {print $2}'
+    # Blue terminal lines saved in target_pts
+      register: target_pts
+      changed_when: false
+
+    - name: Send Chosen Animation
+    # Flood Blue Users on machine with chosen animation
+      ansible.builtin.shell: |
+        /usr/bin/cat {{remote_spam_folder}}{{ selected_file }} | tee /dev/{{ item }} > /dev/null
+      loop: "{{ target_pts.stdout_lines }}"
+      when: target_pts.stdout_lines | length > 0
+      changed_when: false
+
+    - name: Cut Blue Teams Terminal Connections (optional)
+    # Comment this out for light hearted play
+    # Use to kick out all blue users found on Linux Target machines
+      ansible.builtin.shell: |
+        sudo pkill -9 -t {{ item }}
+      loop: "{{ target_pts.stdout_lines }}"
+      when: target_pts.stdout_lines | length > 0
+      
