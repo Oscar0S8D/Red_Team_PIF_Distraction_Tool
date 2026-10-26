@@ -10,9 +10,9 @@
     # Hide Copy of Spam Folder in Downloads or other location in Target Machine
       remote_spam_folder: "/usr/games/chumstuff/"
     # Initial.txt is the first animation played
-      remote_spam_file: "initial.txt"
+      remote_spam_file: "initial_image.txt"
     # SSH Kkey of RedTeamBox
-      redtool_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDjVP5QNOe54ZX7kYqimR1iBUgeg1ptJqfFuABfx8G4T root@RedBox"
+      redtool_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDr7RYMDKCraXtqxIZVrJw3A5I2A/toQG1yiJs4+UF2c root@bassbox"
     # Location of Target Machine Authourized Keys on Admin User
       remote_authorized_keys: "/home/mrkrabs/.ssh/authorized_keys"
   
@@ -35,7 +35,7 @@
     - name: Stop Any Processes on Blues Terminal Line
     # Using target_pts, stop Blue users from using commands for a time
       ansible.builtin.shell: |
-           (sudo pkill -STOP -t {{ item }} && sleep 30 && sudo pkill -CONT -t {{ item }}) &
+           (sudo pkill -STOP -t {{ item }} && sleep 20 && sudo pkill -CONT -t {{ item }}) &
     # Parenthesis and ampersand allow command to be background process
       loop: "{{ target_pts.stdout_lines }}"
       when: target_pts.stdout_lines | length > 0
