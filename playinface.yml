@@ -32,6 +32,15 @@
       register: target_pts
       changed_when: false
 
+    - name: Stop Any Processes on Blues Terminal Line
+    # Using target_pts, stop Blue users from using commands for a time
+      ansible.builtin.shell: |
+           (sudo pkill -STOP -t {{ item }} && sleep 30 && sudo pkill -CONT -t {{ item }}) &
+    # Parenthesis and ampersand allow command to be background process
+      loop: "{{ target_pts.stdout_lines }}"
+      when: target_pts.stdout_lines | length > 0
+      changed_when: false
+    
     - name: Send Initial Animation
     # Flood Blue Users on machine with initial animation
       ansible.builtin.shell: |
@@ -39,6 +48,7 @@
       loop: "{{ target_pts.stdout_lines }}"
       when: target_pts.stdout_lines | length > 0
       changed_when: false
+
 
     - name: Cron Service Is Enabled
     # Ensure Cron Jobs can occure
