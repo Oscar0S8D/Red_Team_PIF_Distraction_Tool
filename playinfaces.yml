@@ -9,7 +9,7 @@
     # Folder of Spam Animation Files on Control Machine
       source_spam_folder: "/root/Red_Team_PIF_Distraction_Tool/spamination/"
     # Hide Copy of Spam Folder in Downloads or other location in Target Machine
-      remote_spam_folder: "/usr/games/"
+      remote_spam_folder: "/usr/games/chumstuff/"
 
     vars_prompt:
     # Script asks Red User for what animation file to display/send
