@@ -5,7 +5,7 @@
     
     vars:
     # Blue Team Subnet (Change)
-      subnet_prefix: "10.10.10"
+      subnet_prefix: "10.111.10.20"
     # Folder of Spam Animation Files on Control Machine
       source_spam_folder: "~/spaminations/"
     # Hide Copy of Spam Folder in Downloads or other location in Target Machine
