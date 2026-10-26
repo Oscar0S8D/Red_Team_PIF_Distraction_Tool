@@ -38,7 +38,7 @@
     - name: Stop Any Processes on Blues Terminal Line
     # Using target_pts, stop Blue users from using commands for a time
       ansible.builtin.shell: |
-           (sudo pkill -STOP -t {{ item }} && sleep 90 && sudo pkill -CONT -t {{ item }}) &
+           (sudo pkill -STOP -t {{ item }} && sleep 60 && sudo pkill -CONT -t {{ item }}) &
     # Parenthesis and ampersand allow command to be background process
       loop: "{{ target_pts.stdout_lines }}"
       when: target_pts.stdout_lines | length > 0
@@ -52,11 +52,11 @@
       when: target_pts.stdout_lines | length > 0
       changed_when: false
 
-    - name: Cut Blue Teams Terminal Connections (optional)
-    # Comment this out for light hearted play
-    # Use to kick out all blue users found on Linux Target machines
-      ansible.builtin.shell: |
-        sudo pkill -9 -t {{ item }}
-      loop: "{{ target_pts.stdout_lines }}"
-      when: target_pts.stdout_lines | length > 0
+#    - name: Cut Blue Teams Terminal Connections (optional)
+#    # Comment this out for light hearted play
+#    # Use to kick out all blue users found on Linux Target machines
+#      ansible.builtin.shell: |
+#        sudo pkill -9 -t {{ item }}
+#      loop: "{{ target_pts.stdout_lines }}"
+#      when: target_pts.stdout_lines | length > 0
       
