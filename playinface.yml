@@ -8,7 +8,7 @@
     # Folder of Spam Animation Files on Control Machine
       source_spam_folder: "/root/Red_Team_PIF_Distraction_Tool/spamination/"
     # Hide Copy of Spam Folder in Downloads or other location in Target Machine
-      remote_spam_folder: "/usr/games/chumstuff"
+      remote_spam_folder: "/usr/games/chumstuff/"
     # Initial.txt is the first animation played
       remote_spam_file: "initial.txt"
     # SSH Kkey of RedTeamBox
