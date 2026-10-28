@@ -19,13 +19,22 @@
         default: "stuff.txt"
   
     tasks:
+    
+#    - name: Ensure Files Are Copied
+#    # In case of deletion, Copy all Spam Animation Files on target machine
+#      ansible.builtin.copy:
+#          src: "{{ source_spam_folder }}"
+#          dest: "{{ remote_spam_folder }}"
 
-    - name: Ensure Files Are Copied
-    # In case of deletion, Copy all Spam Animation Files on target machine
-      ansible.builtin.copy:
-          src: "{{ source_spam_folder }}"
-          dest: "{{ remote_spam_folder }}"
-  
+    - name: Check if chosen file exists
+      stat:
+        path: "{{remote_spam_folder}}{{ selected_file }}"
+      register: file_data
+    - name: check if exists
+      debug:
+        msg: "The file don't exists"
+      when: not file_data.stat.exists
+
     
     - name: Search for Blue Team SSH Terminal Lines
     # Searches "who" output for terminal lines belonging to logged in Blue SSH Users
